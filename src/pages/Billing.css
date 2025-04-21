@@ -1,0 +1,18 @@
+@media print {
+    body * {
+      visibility: hidden;
+    }
+    .receipt-layout, .receipt-layout * {
+      visibility: visible;
+    }
+    .receipt-layout {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      padding: 20px;
+    }
+
+    
+  }
+  
