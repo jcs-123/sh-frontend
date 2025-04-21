@@ -15,14 +15,12 @@ import {
 } from "@mui/material";
 import {
   Download as DownloadIcon,
-  PictureAsPdf as PdfIcon,
   Assessment as ChartIcon,
 } from "@mui/icons-material";
 import dayjs from "dayjs";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import jsPDF from "jspdf";
 import "jspdf-autotable";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from 'react-router-dom';

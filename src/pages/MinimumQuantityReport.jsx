@@ -68,7 +68,7 @@ const MinimumQuantityReport = () => {
 
   const handleEditSave = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/stocks/${editItem._id}`, {
+      await axios.put(`https://bookstall-server-jqrx.onrender.com/api/stocks/${editItem._id}`, {
         quantity: editItem.quantity,
         minQuantity: editItem.minQuantity,
       });
