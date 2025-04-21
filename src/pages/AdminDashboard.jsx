@@ -4,11 +4,12 @@ import {
   CircularProgress
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import ReceiptIcon from "@mui/icons-material/Receipt";
-import DescriptionIcon from "@mui/icons-material/Description";
+import LocalMallIcon from "@mui/icons-material/LocalMall";
+import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -36,16 +37,20 @@ const AdminDashboard = () => {
     { label: "Day Book Report", action: () => handleReportNavigation("/daybook-report") },
   ], [handleReportNavigation]);
 
+  const handleViewSummary = () => {
+    navigate("/summary");
+  };
+
   return (
-    <Paper sx={{ p: 4, mt: 4, mx: "auto", maxWidth: "800px", borderRadius: 3, boxShadow: 6 }}>
+    <Paper sx={{ p: 4, mt: 4, mx: "auto", maxWidth: "1000px", borderRadius: 3, boxShadow: 6 }}>
       <Typography variant="h3" fontWeight="bold" gutterBottom align="center" color="primary.main">
         🛠️ Admin Dashboard
       </Typography>
-      <Divider sx={{ mb: 4 }} />
+      <Divider sx={{ mb: 3 }} />
 
       <Grid container spacing={3} justifyContent="center">
-        <Grid item>
-          <Tooltip title="Go to stock management" arrow>
+        <Grid>
+          <Tooltip title="Manage your stock inventory" arrow>
             <Button
               variant="contained"
               sx={{ backgroundColor: "success.main", '&:hover': { backgroundColor: "success.dark" } }}
@@ -57,8 +62,8 @@ const AdminDashboard = () => {
           </Tooltip>
         </Grid>
 
-        <Grid item>
-          <Tooltip title="Check billing records" arrow>
+        <Grid>
+          <Tooltip title="View your billing records" arrow>
             <Button
               variant="contained"
               sx={{ backgroundColor: "info.main", '&:hover': { backgroundColor: "info.dark" } }}
@@ -70,8 +75,8 @@ const AdminDashboard = () => {
           </Tooltip>
         </Grid>
 
-        <Grid item>
-          <Tooltip title="View reports and summaries" arrow>
+        <Grid>
+          <Tooltip title="View and generate reports" arrow>
             <Button
               variant="contained"
               sx={{ backgroundColor: "warning.main", '&:hover': { backgroundColor: "warning.dark" } }}
@@ -91,13 +96,26 @@ const AdminDashboard = () => {
           </Menu>
         </Grid>
 
-        <Grid item>
-          <Tooltip title="See overall summary (sales, bills, etc.)" arrow>
+        <Grid>
+          <Tooltip title="Damage Returns" arrow>
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={() => navigate("/damage-return")}
+              startIcon={<ShoppingCartCheckoutIcon sx={{ fontSize: 30 }} />}
+            >
+              Damage Return
+            </Button>
+          </Tooltip>
+        </Grid>
+
+        <Grid>
+          <Tooltip title="Summary Overview" arrow>
             <Button
               variant="contained"
               sx={{ backgroundColor: "secondary.main", '&:hover': { backgroundColor: "secondary.dark" } }}
-              onClick={() => navigate("/dashboard-summary")}
-              startIcon={<DescriptionIcon sx={{ fontSize: 30 }} />}
+              onClick={() => navigate("/admin-summary")}
+              startIcon={<TrendingUpIcon sx={{ fontSize: 30 }} />}
             >
               View Summary
             </Button>
