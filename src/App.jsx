@@ -10,7 +10,6 @@ import DamageReturn from "./pages/DamageReturn";
 import Report from "./pages/StockReports";
 import DaybookReport from "./pages/DaybookReport";
 import BillingRecords from "./pages/BillingRecords";
-import UserManagement from "./pages/UserManagement";
 
 
 
@@ -37,7 +36,7 @@ function App() {
                 <Route path="/edit-stock/:id" element={<EditStock />} />
                 <Route path="/daybook-report" element={<DaybookReport />} />
                 <Route path="/billing-records" element={<BillingRecords />} />
-                <Route path="/user-management" element={<UserManagement />} />
+              
 
                 
 
