@@ -77,13 +77,13 @@ const AddStock = () => {
       if (stockToEdit) {
         // Edit Mode
         await axios.put(
-          `http://localhost:5000/api/stocks/${stockToEdit._id}`,
+          `https://bookstall-server-jqrx.onrender.com/api/stocks/${stockToEdit._id}`,
           stockData
         );
         setSnackMessage("Stock updated successfully!");
       } else {
         // Add Mode
-        await axios.post("http://localhost:5000/api/stocks", stockData);
+        await axios.post("https://bookstall-server-jqrx.onrender.com/api/stocks", stockData);
         setSnackMessage("Stock added successfully!");
       }
 

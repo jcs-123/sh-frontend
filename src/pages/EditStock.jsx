@@ -63,7 +63,7 @@ const EditStock = () => {
 
   const fetchStocks = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/stocks");
+      const res = await axios.get("https://bookstall-server-jqrx.onrender.com/api/stocks");
       if (Array.isArray(res.data)) {
         setStocks(res.data);
       } else {
@@ -83,7 +83,7 @@ const EditStock = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/stocks/${selectedStock._id}`);
+      await axios.delete(`https://bookstall-server-jqrx.onrender.com/api/stocks/${selectedStock._id}`);
       setSnack({ open: true, message: "Stock item deleted successfully.", severity: "success" });
       setDeleteDialogOpen(false);
       fetchStocks(); // Refresh list

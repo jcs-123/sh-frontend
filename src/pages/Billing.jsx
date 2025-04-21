@@ -39,7 +39,7 @@ const Billing = () => {
   }, []);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/stocks")
+    axios.get("https://bookstall-server-jqrx.onrender.com/api/stocks")
       .then((res) => setStocks(res.data))
       .catch((err) => {
         console.error("Stock fetch error:", err);
@@ -143,7 +143,7 @@ const Billing = () => {
     }));
 
     try {
-      const res = await axios.post("http://localhost:5000/api/bills", {
+      const res = await axios.post("https://bookstall-server-jqrx.onrender.com/api/bills", {
         buyerName,
         items: transformedItems,
         payment,

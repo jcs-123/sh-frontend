@@ -26,7 +26,7 @@ const StockList = () => {
 
   const fetchStocks = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/stocks");
+      const res = await axios.get("https://bookstall-server-jqrx.onrender.com/api/stocks");
       setStocks(res.data);
     } catch (err) {
       console.error("Error fetching stocks:", err);
@@ -39,7 +39,7 @@ const StockList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/stocks/${id}`);
+      await axios.delete(`https://bookstall-server-jqrx.onrender.com/api/stocks/${id}`);
       setSnack({ open: true, message: "Stock deleted successfully", severity: "success" });
       fetchStocks();
     } catch (err) {

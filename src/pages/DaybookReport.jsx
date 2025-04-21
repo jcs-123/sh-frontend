@@ -30,7 +30,7 @@ const DaybookReport = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/daybook?from=${fromDate}&to=${toDate}`
+        `https://bookstall-server-jqrx.onrender.com/api/daybook?from=${fromDate}&to=${toDate}`
       );
       console.log(res);
       
