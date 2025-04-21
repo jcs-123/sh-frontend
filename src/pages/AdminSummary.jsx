@@ -15,7 +15,7 @@ const AdminSummary = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const res = await axios.get("/api/dashboard/summary");
+        const res = await axios.get("https://bookstall-server-jqrx.onrender.com/api/dashboard/summary");
         setSummary(res.data);
       } catch (err) {
         console.error("Error fetching summary:", err);
