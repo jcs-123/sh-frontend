@@ -13,8 +13,6 @@ import BillingRecords from "./pages/BillingRecords";
 import AdminSummary from "./pages/AdminSummary";
 
 
-
-
 const PrivateRoute = ({ role, children }) => {
     const userRole = localStorage.getItem("role");
     return userRole === role ? children : <Navigate to="/login" />;
@@ -43,8 +41,7 @@ function App() {
                 
 
                 
-          
-              
+        
             </Routes>
         </Router>
     );
