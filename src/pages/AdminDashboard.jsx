@@ -1,21 +1,20 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
-  Button, Box, Typography, Paper, Grid, Menu, MenuItem, Divider, Tooltip,
-  CircularProgress
+  AppBar, Toolbar, Typography, IconButton, Button, Box, Paper,
+  Grid, Menu, MenuItem, Divider, Tooltip
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import LogoutIcon from "@mui/icons-material/Logout";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import LocalMallIcon from "@mui/icons-material/LocalMall";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-
   const [anchorEl, setAnchorEl] = useState(null);
-  const [loading, setLoading] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = useCallback((event) => {
@@ -27,61 +26,80 @@ const AdminDashboard = () => {
   }, []);
 
   const handleReportNavigation = useCallback((path) => {
-    setLoading(true);
     navigate(path);
-    setLoading(false);
   }, [navigate]);
+
+  const handleLogout = () => {
+    // Clear user session and navigate to login
+    localStorage.clear();
+    navigate("/login");
+  };
 
   const menuItems = useMemo(() => [
     { label: "Stock Report", action: () => handleReportNavigation("/stock-report") },
     { label: "Day Book Report", action: () => handleReportNavigation("/daybook-report") },
   ], [handleReportNavigation]);
 
-  const handleViewSummary = () => {
-    navigate("/summary");
-  };
-
   return (
-    <Paper sx={{ p: 4, mt: 4, mx: "auto", maxWidth: "1000px", borderRadius: 3, boxShadow: 6 }}>
-      <Typography variant="h3" fontWeight="bold" gutterBottom align="center" color="primary.main">
-        🛠️ Admin Dashboard
-      </Typography>
-      <Divider sx={{ mb: 3 }} />
+    <Box>
+      {/* Top App Bar */}
+      <AppBar position="static" sx={{ backgroundColor: "#2c387e" }}>
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
+            📊 Admin Dashboard
+          </Typography>
+          <Tooltip title="Logout" arrow>
+            <IconButton color="inherit" onClick={handleLogout}>
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
+        </Toolbar>
+      </AppBar>
 
-      <Grid container spacing={3} justifyContent="center">
-        <Grid>
+      {/* Main Content */}
+      <Paper sx={{ p: 4, mt: 4, mx: "auto", maxWidth: "1200px", borderRadius: 4, boxShadow: 4 }}>
+        <Typography variant="h4" fontWeight="bold" gutterBottom align="center" color="primary">
+          Welcome to Admin Panel
+        </Typography>
+        <Divider sx={{ mb: 3 }} />
+
+        {/* Horizontal Button Row */}
+        <Box sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          justifyContent: "center",
+          overflowX: "auto",
+          pb: 2
+        }}>
           <Tooltip title="Manage your stock inventory" arrow>
             <Button
               variant="contained"
-              sx={{ backgroundColor: "success.main", '&:hover': { backgroundColor: "success.dark" } }}
+              color="success"
+              startIcon={<InventoryIcon />}
               onClick={() => navigate("/edit-stock")}
-              startIcon={<InventoryIcon sx={{ fontSize: 30 }} />}
             >
               Manage Stock
             </Button>
           </Tooltip>
-        </Grid>
 
-        <Grid>
           <Tooltip title="View your billing records" arrow>
             <Button
               variant="contained"
-              sx={{ backgroundColor: "info.main", '&:hover': { backgroundColor: "info.dark" } }}
+              color="info"
+              startIcon={<ReceiptIcon />}
               onClick={() => navigate("/billing-records")}
-              startIcon={<ReceiptIcon sx={{ fontSize: 30 }} />}
             >
               Billing Records
             </Button>
           </Tooltip>
-        </Grid>
 
-        <Grid>
           <Tooltip title="View and generate reports" arrow>
             <Button
               variant="contained"
-              sx={{ backgroundColor: "warning.main", '&:hover': { backgroundColor: "warning.dark" } }}
+              color="warning"
+              startIcon={<AssessmentIcon />}
               onClick={handleClick}
-              startIcon={<AssessmentIcon sx={{ fontSize: 30 }} />}
             >
               View Reports
             </Button>
@@ -94,41 +112,31 @@ const AdminDashboard = () => {
               </MenuItem>
             ))}
           </Menu>
-        </Grid>
 
-        <Grid>
           <Tooltip title="Damage Returns" arrow>
             <Button
               variant="contained"
-              color="warning"
+              color="secondary"
+              startIcon={<ShoppingCartCheckoutIcon />}
               onClick={() => navigate("/damage-return")}
-              startIcon={<ShoppingCartCheckoutIcon sx={{ fontSize: 30 }} />}
             >
               Damage Return
             </Button>
           </Tooltip>
-        </Grid>
 
-        <Grid>
           <Tooltip title="Summary Overview" arrow>
             <Button
               variant="contained"
-              sx={{ backgroundColor: "secondary.main", '&:hover': { backgroundColor: "secondary.dark" } }}
+              sx={{ backgroundColor: "#6a1b9a", color: "#fff", "&:hover": { backgroundColor: "#4a148c" } }}
+              startIcon={<TrendingUpIcon />}
               onClick={() => navigate("/admin-summary")}
-              startIcon={<TrendingUpIcon sx={{ fontSize: 30 }} />}
             >
               View Summary
             </Button>
           </Tooltip>
-        </Grid>
-      </Grid>
-
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <CircularProgress color="primary" />
         </Box>
-      )}
-    </Paper>
+      </Paper>
+    </Box>
   );
 };
 
