@@ -21,7 +21,7 @@ const AddStock = () => {
 
   const [formData, setFormData] = useState({
     itemName: "",
-    code: "", // now manually entered
+    code: "",
     purchaseRate: "",
     retailRate: "",
     vendorDetails: "",
@@ -36,7 +36,6 @@ const AddStock = () => {
 
   useEffect(() => {
     if (stockToEdit) {
-      // Edit Mode
       setFormData({
         itemName: stockToEdit.itemName,
         code: stockToEdit.code,
@@ -75,15 +74,16 @@ const AddStock = () => {
 
     try {
       if (stockToEdit) {
-        // Edit Mode
         await axios.put(
           `https://bookstall-server-jqrx.onrender.com/api/stocks/${stockToEdit._id}`,
           stockData
         );
         setSnackMessage("Stock updated successfully!");
       } else {
-        // Add Mode
-        await axios.post("https://bookstall-server-jqrx.onrender.com/api/stocks", stockData);
+        await axios.post(
+          "https://bookstall-server-jqrx.onrender.com/api/stocks",
+          stockData
+        );
         setSnackMessage("Stock added successfully!");
       }
 
@@ -104,6 +104,10 @@ const AddStock = () => {
     localStorage.clear();
     sessionStorage.clear();
     navigate("/login");
+  };
+
+  const handleNavigateToUpdateForm = () => {
+    navigate("/update-stock");
   };
 
   return (
@@ -246,6 +250,16 @@ const AddStock = () => {
               <Button type="submit" variant="contained" color="primary" size="large">
                 {stockToEdit ? "Update Stock" : "Add Stock"}
               </Button>
+
+              {!stockToEdit && (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleNavigateToUpdateForm}
+                >
+                  Go to Update Form
+                </Button>
+              )}
             </Stack>
           </form>
         </Paper>

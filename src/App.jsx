@@ -11,6 +11,8 @@ import Report from "./pages/StockReports";
 import DaybookReport from "./pages/DaybookReport";
 import BillingRecords from "./pages/BillingRecords";
 import AdminSummary from "./pages/AdminSummary";
+import UpdateStock from "./pages/UpdateStock";
+import PurchaseHistory from "./pages/PurchaseHistory";
 
 
 const PrivateRoute = ({ role, children }) => {
@@ -33,9 +35,11 @@ function App() {
                 <Route path="/damage-return" element={<DamageReturn />} />
                 <Route path="/stock-report" element={<Report />} />
                 <Route path="/edit-stock/:id" element={<EditStock />} />
+                <Route path="/update-stock" element={<UpdateStock />} />
                 <Route path="/daybook-report" element={<DaybookReport />} />
                 <Route path="/billing-records" element={<BillingRecords />} />
                 <Route path="/admin-summary" element={<AdminSummary />} />
+
               
 
                 

@@ -7,6 +7,8 @@ import Reports from "./StockReports";
 import axios from "axios";
 import "./StockEntry.css";
 import DaybookReport from "./DaybookReport";
+import PurchaseHistory from "./PurchaseHistory"; // ✅ Add this import
+
 
 
 function StockEntry() {
@@ -61,6 +63,11 @@ function StockEntry() {
                     <li onClick={() => setActiveTab("daybook")} className={activeTab === "daybook" ? "active" : ""}>
                         📅 Daybook Report
                     </li>
+                    <li onClick={() => setActiveTab("purchaseHistory")} className={activeTab === "purchaseHistory" ? "active" : ""}>
+                        📘 Purchase History
+                    </li>
+
+
                 </ul>
             </nav>
 
@@ -72,6 +79,8 @@ function StockEntry() {
                 {activeTab === "damageReturn" && <DamageReturn />}
                 {activeTab === "Stockreports" && <Reports />}
                 {activeTab === "daybook" && <DaybookReport />}
+                {activeTab === "purchaseHistory" && <PurchaseHistory />}
+
             </div>
         </div>
     );
