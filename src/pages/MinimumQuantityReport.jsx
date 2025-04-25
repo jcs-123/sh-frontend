@@ -13,26 +13,18 @@ import {
   Button,
   CircularProgress,
   Stack,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
 } from "@mui/material";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useNavigate } from 'react-router-dom'; // <-- Import useNavigate
-
+import { useNavigate } from "react-router-dom"; // For navigation
 
 const MinimumQuantityReport = () => {
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notedItems, setNotedItems] = useState({});
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editItem, setEditItem] = useState(null);
-  const navigate = useNavigate(); // <-- Initialize navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchStocks();
@@ -57,26 +49,7 @@ const MinimumQuantityReport = () => {
   };
 
   const handleEditClick = (item) => {
-    setEditItem({ ...item });
-    setEditDialogOpen(true);
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditItem((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleEditSave = async () => {
-    try {
-      await axios.put(`https://bookstall-server-jqrx.onrender.com/api/stocks/${editItem._id}`, {
-        quantity: editItem.quantity,
-        minQuantity: editItem.minQuantity,
-      });
-      fetchStocks(); // Refresh list
-      setEditDialogOpen(false);
-    } catch (error) {
-      console.error("Update failed:", error.message);
-    }
+    navigate("/update-stock", { state: { stock: item } }); // Navigate with state
   };
 
   const handleExportExcel = () => {
@@ -87,30 +60,26 @@ const MinimumQuantityReport = () => {
       "Minimum Quantity": item.minQuantity,
       "Noted": notedItems[item._id] ? "Yes" : "No",
     }));
-  
+
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Low Stock Report");
-  
+
     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(data, `Minimum_Quantity_Report_${new Date().toISOString().split("T")[0]}.xlsx`);
   };
-  
-  
-
-  
 
   return (
     <Container maxWidth="lg" sx={{ mt: 6 }}>
-       <Box
+      <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
         sx={{ mb: 3 }}
       >
         <Typography variant="h4" fontWeight="bold">
-        ⚠️ Minimum Quantity Report
+          ⚠️ Minimum Quantity Report
         </Typography>
 
         <Button
@@ -125,11 +94,7 @@ const MinimumQuantityReport = () => {
         >
           Logout
         </Button>
-
       </Box>
-
-      
-      
 
       {loading ? (
         <Box display="flex" justifyContent="center" mt={4}>
@@ -141,7 +106,6 @@ const MinimumQuantityReport = () => {
             <Button variant="outlined" onClick={handleExportExcel}>
               📥 Export to Excel
             </Button>
-      
           </Stack>
 
           <Table>
@@ -183,37 +147,6 @@ const MinimumQuantityReport = () => {
           </Table>
         </Paper>
       )}
-
-      {/* Edit Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-        <DialogTitle>Edit Stock Item</DialogTitle>
-        <DialogContent sx={{ mt: 1 }}>
-          <TextField
-            margin="dense"
-            label="Quantity"
-            type="number"
-            name="quantity"
-            fullWidth
-            value={editItem?.quantity || ""}
-            onChange={handleEditChange}
-          />
-          <TextField
-            margin="dense"
-            label="Minimum Quantity"
-            type="number"
-            name="minQuantity"
-            fullWidth
-            value={editItem?.minQuantity || ""}
-            onChange={handleEditChange}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleEditSave} variant="contained">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 };

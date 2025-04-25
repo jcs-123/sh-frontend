@@ -39,6 +39,9 @@ function App() {
                 <Route path="/daybook-report" element={<DaybookReport />} />
                 <Route path="/billing-records" element={<BillingRecords />} />
                 <Route path="/admin-summary" element={<AdminSummary />} />
+                <Route path="/purchase-history" element={<PurchaseHistory />} />
+                
+
 
               
 
