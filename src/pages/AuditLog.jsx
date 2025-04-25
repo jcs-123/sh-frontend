@@ -12,18 +12,35 @@ const AuditLog = () => {
   useEffect(() => {
     const fetchAuditLogs = async () => {
       try {
-        const response = await axios.get("https://bookstall-server-jqrx.onrender.com/api/audit-log");
+        
+        const response = await axios.get("https://bookstall-server-jqrx.onrender.com/api/stock/audit-log");
+
         setLogs(response.data);
         setLoading(false);
       } catch (err) {
+        console.error("Error fetching audit logs:", err);
+        
+        if (err.response) {
+          // The server responded with a status code outside the 2xx range
+          console.error("Response data:", err.response.data);
+          console.error("Response status:", err.response.status);
+          console.error("Response headers:", err.response.headers);
+        } else if (err.request) {
+          // No response was received
+          console.error("Request data:", err.request);
+        } else {
+          // Other errors like setup or configuration issues
+          console.error("Error message:", err.message);
+        }
+  
         setError("Error fetching audit logs");
         setLoading(false);
-        console.error("Error fetching audit logs:", err);
       }
     };
-
+  
     fetchAuditLogs();
   }, []);
+  
 
   if (loading) {
     return (
