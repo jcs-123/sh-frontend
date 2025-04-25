@@ -12,7 +12,7 @@ import DaybookReport from "./pages/DaybookReport";
 import BillingRecords from "./pages/BillingRecords";
 import AdminSummary from "./pages/AdminSummary";
 import UpdateStock from "./pages/UpdateStock";
-
+import AuditLogPage from "./pages/AuditLog";
 
 
 const PrivateRoute = ({ role, children }) => {
@@ -39,6 +39,7 @@ function App() {
                 <Route path="/daybook-report" element={<DaybookReport />} />
                 <Route path="/billing-records" element={<BillingRecords />} />
                 <Route path="/admin-summary" element={<AdminSummary />} />
+                <Route path="/audit-log" element={<AuditLogPage />} />
             
                 
 
