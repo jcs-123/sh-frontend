@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Container, TextField, Button, Typography, Box, Paper } from "@mui/material";
+import { Container, TextField, Button, Typography, Box, Paper, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +8,7 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -68,13 +70,32 @@ const Login = () => {
                     />
                     <TextField
                         label="Password"
-                        type="password"
+                        type={showPassword ? "text" : "password"} // Toggle password visibility
                         fullWidth
                         variant="outlined"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         autoComplete="current-password"
                         required
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        edge="end"
+                                        sx={{
+                                            color: "#3f51b5",
+                                            "&:hover": {
+                                                backgroundColor: "rgba(63, 81, 181, 0.1)",
+                                                borderRadius: "50%",
+                                            },
+                                        }}
+                                    >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                         sx={{
                             "& .MuiOutlinedInput-root": {
                                 borderRadius: "8px",
@@ -108,6 +129,7 @@ const Login = () => {
 };
 
 export default Login;
+
 
 // import { useState } from "react";
 // import { Container, TextField, Button, Typography, Box, Paper } from "@mui/material";
