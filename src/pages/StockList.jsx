@@ -13,6 +13,7 @@ import {
   Snackbar,
   Alert,
   Button,
+  TextField,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import axios from "axios";
@@ -20,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 
 const StockList = () => {
   const [stocks, setStocks] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
 
   const navigate = useNavigate();
@@ -47,28 +49,50 @@ const StockList = () => {
     }
   };
 
+  const filteredStocks = stocks.filter(
+    (stock) =>
+      stock.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stock.code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Box sx={{ padding: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        📋 Stock List
+      </Typography>
+
+      {/* Top Bar: Search on Left, Add Button on Right */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          mb: 2,
+          flexWrap: "wrap",
+          gap: 2,
         }}
       >
-        <Typography variant="h4" gutterBottom>
-          📋 Stock List
-        </Typography>
+        {/* Search Box */}
+        <TextField
+          label="Search by Item Name or Code"
+          variant="outlined"
+          size="small"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ minWidth: 300 }}
+        />
+
+        {/* Add Stock Button */}
         <Button
           variant="contained"
           color="primary"
-          onClick={() => navigate("/stock-entry")} // ✅ updated route to match your Add Stock Item page
+          onClick={() => navigate("/stock-entry")}
         >
           ➕ Add Stock
         </Button>
       </Box>
 
-      <Paper elevation={3} sx={{ mt: 3 }}>
+      <Paper elevation={3}>
         <TableContainer>
           <Table>
             <TableHead sx={{ backgroundColor: "#f0f0f0" }}>
@@ -84,7 +108,7 @@ const StockList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {stocks.map((stock) => (
+              {filteredStocks.map((stock) => (
                 <TableRow key={stock._id}>
                   <TableCell>{stock.itemName}</TableCell>
                   <TableCell>{stock.code}</TableCell>
@@ -103,7 +127,7 @@ const StockList = () => {
                   </TableCell>
                 </TableRow>
               ))}
-              {stocks.length === 0 && (
+              {filteredStocks.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} align="center">
                     No stock records found.

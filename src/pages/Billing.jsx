@@ -7,7 +7,7 @@ import {
   Snackbar, Alert
 } from "@mui/material";
 import { Delete, Edit, Save, Logout } from "@mui/icons-material";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Billing = () => {
   const [stocks, setStocks] = useState([]);
@@ -23,6 +23,18 @@ const Billing = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("info");
   const [alertMessage, setAlertMessage] = useState("");
+  const navigate = useNavigate();
+  const handleClearForm = () => {
+    setBuyerName("");
+    setSearchCode("");
+    setQuantity("");
+    setPayment("");
+    setParticulars([]);
+    setReceipt(null);
+    setEditingIndex(-1);
+    setEditQty(1);
+    showAlert("info", "Form cleared.");
+  };
 
   const showAlert = (type, message) => {
     setAlertType(type);
@@ -54,33 +66,40 @@ const Billing = () => {
       showAlert("warning", "Enter valid code and quantity.");
       return;
     }
-
+  
     const found = stocks.find((item) => item.code === code || item.barcode === code);
     if (!found) {
       showAlert("error", "Item not found.");
       return;
     }
-
+  
+    // 👇 Ensure quantity is a number, not a string
+    const enteredQuantity = Number(quantity);
+    if (isNaN(enteredQuantity) || enteredQuantity < 1) {
+      showAlert("warning", "Please enter a valid quantity.");
+      return;
+    }
+  
     // 👇 Calculate total quantity including already added
     const alreadyAddedQty = particulars.find(p => p.code === found.code)?.quantity || 0;
-    const totalUsedQty = alreadyAddedQty + quantity;
-
+    const totalUsedQty = alreadyAddedQty + enteredQuantity;
+  
     const remainingQty = found.quantity - totalUsedQty;
-
+  
     if (remainingQty < found.minQuantity) {
       showAlert("warning", `⚠️ Warning: '${found.itemName}' stock will drop below minimum (${found.minQuantity})! Remaining after billing: ${remainingQty}`);
     }
-
+  
     const exists = particulars.find((p) => p.code === found.code);
     if (exists) {
       setParticulars((prev) =>
         prev.map((item) =>
           item.code === found.code
             ? {
-              ...item,
-              quantity: item.quantity + quantity,
-              amount: (item.quantity + quantity) * item.retailRate,
-            }
+                ...item,
+                quantity: item.quantity + enteredQuantity,
+                amount: (item.quantity + enteredQuantity) * item.retailRate,
+              }
             : item
         )
       );
@@ -90,18 +109,18 @@ const Billing = () => {
         {
           code: found.code,
           itemName: found.itemName,
-          quantity,
+          quantity: enteredQuantity,
           retailRate: found.retailRate,
-          amount: found.retailRate * quantity,
+          amount: found.retailRate * enteredQuantity,
         },
       ]);
     }
-
+  
     setSearchCode("");
     setQuantity(1);
     inputRef.current?.focus();
   };
-
+  
 
   const handleEditItem = (index) => {
     setEditingIndex(index);
@@ -182,12 +201,27 @@ const Billing = () => {
   const handleLogout = () => {
     localStorage.clear();
     sessionStorage.clear();
-    navigate("/login");
-  };
+    navigate("/login");  // Navigate to the login page after logout
 
+
+  };
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 4 }}>
-      <Typography variant="h4" gutterBottom color="primary">🧾 Bookstall Billing</Typography>
+    
+     <Box sx={{ maxWidth: 1200, mx: "auto", p: 4 }}>
+      {/* Header with Logout Button on the same line */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+        <Typography variant="h4" color="primary">🧾 Bookstall Billing</Typography>
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<Logout />}
+          onClick={handleLogout}
+          sx={{ textTransform: "none", padding: "6px 16px" }}
+        >
+          Logout
+        </Button>
+      </Box>
+
 
       {/* Buyer Info */}
       <Paper sx={{ p: 3, mb: 3 }} elevation={3}>
@@ -308,9 +342,13 @@ const Billing = () => {
         <Button variant="outlined" onClick={handleReprint}>
           🔁 Reprint Last Bill
         </Button>
-        <Button variant="outlined" color="secondary" startIcon={<Logout />} onClick={handleLogout}>
-          Logout
-        </Button>
+         <Button
+        variant="outlined"
+        color="secondary"
+        onClick={handleClearForm}
+      >
+        🧹 Clear Form
+      </Button>
       </Stack>
 
       {/* Receipt */}

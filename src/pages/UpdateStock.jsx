@@ -22,9 +22,9 @@ const UpdateStock = () => {
     code: "",
     purchaseRate: "",
     retailRate: "",
-    quantity: "",
+    existingQuantity: "",
+    quantityToAdd: "",
     minQuantity: "",
-    totalValue: "",
     vendorDetails: "",
   });
 
@@ -52,7 +52,11 @@ const UpdateStock = () => {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleItemNameChange = (e) => {
@@ -62,9 +66,15 @@ const UpdateStock = () => {
     );
     if (selectedItem) {
       setFormData({
-        ...selectedItem,
+        _id: selectedItem._id,
+        itemName: selectedItem.itemName,
+        code: selectedItem.code,
+        purchaseRate: selectedItem.purchaseRate,
+        retailRate: selectedItem.retailRate,
+        vendorDetails: selectedItem.vendorDetails || "",
         minQuantity: selectedItem.minQuantity || "",
-        quantity: selectedItem.quantity || "",
+        existingQuantity: selectedItem.quantity || 0,
+        quantityToAdd: "",
       });
     }
   };
@@ -72,9 +82,8 @@ const UpdateStock = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.itemName) newErrors.itemName = "Item Name is required";
-    if (!formData.quantity) newErrors.quantity = "Quantity is required";
-    if (!formData.purchaseRate)
-      newErrors.purchaseRate = "Purchase Rate is required";
+    if (!formData.quantityToAdd) newErrors.quantityToAdd = "Quantity to Add is required";
+    if (!formData.purchaseRate) newErrors.purchaseRate = "Purchase Rate is required";
     if (!formData.retailRate) newErrors.retailRate = "Retail Rate is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -85,24 +94,23 @@ const UpdateStock = () => {
     if (!validateForm()) return;
 
     const { __v, ...updatedStock } = formData;
-
-    // Calculate the total value as before
-    updatedStock.totalValue =
-      parseFloat(updatedStock.purchaseRate) * parseFloat(updatedStock.quantity);
     updatedStock.editedBy = "Admin";
 
     try {
-      // Get the current stock data
       const existingStock = allStocks.find(
         (item) => item._id === formData._id
       );
 
       if (existingStock) {
-        // If the stock exists, add the new quantity to the existing quantity
-        updatedStock.quantity = existingStock.quantity + parseFloat(updatedStock.quantity);
+        // Update the quantity by adding the new quantity
+        updatedStock.quantity =
+          parseFloat(existingStock.quantity) + parseFloat(formData.quantityToAdd);
       }
 
-      // Update the stock on the backend with the updated quantity
+      // Calculate new total value: purchaseRate * updated quantity
+      updatedStock.totalValue =
+        parseFloat(updatedStock.purchaseRate) * parseFloat(updatedStock.quantity);
+
       await axios.put(
         `https://bookstall-server-jqrx.onrender.com/api/stocks/${formData._id}`,
         updatedStock
@@ -124,7 +132,7 @@ const UpdateStock = () => {
 
   return (
     <Box
-      maxWidth="500px"
+      maxWidth="600px"
       mx="auto"
       mt={5}
       p={3}
@@ -166,6 +174,7 @@ const UpdateStock = () => {
           fullWidth
           margin="normal"
         />
+
         <TextField
           label="Purchase Rate"
           name="purchaseRate"
@@ -178,6 +187,7 @@ const UpdateStock = () => {
           error={!!errors.purchaseRate}
           helperText={errors.purchaseRate}
         />
+
         <TextField
           label="Retail Rate"
           name="retailRate"
@@ -190,6 +200,7 @@ const UpdateStock = () => {
           error={!!errors.retailRate}
           helperText={errors.retailRate}
         />
+
         <TextField
           label="Vendor Details"
           name="vendorDetails"
@@ -198,18 +209,33 @@ const UpdateStock = () => {
           fullWidth
           margin="normal"
         />
+
+        {/* Existing Quantity */}
         <TextField
-          label="Quantity"
-          name="quantity"
+          label="Existing Quantity"
+          name="existingQuantity"
+          value={formData.existingQuantity}
+          fullWidth
+          margin="normal"
+          InputProps={{
+            readOnly: true,
+          }}
+        />
+
+        {/* Quantity To Add */}
+        <TextField
+          label="Quantity To Add"
+          name="quantityToAdd"
           type="number"
-          value={formData.quantity}
+          value={formData.quantityToAdd}
           onChange={handleChange}
           fullWidth
           margin="normal"
           required
-          error={!!errors.quantity}
-          helperText={errors.quantity}
+          error={!!errors.quantityToAdd}
+          helperText={errors.quantityToAdd}
         />
+
         <TextField
           label="Minimum Quantity"
           name="minQuantity"
@@ -219,6 +245,7 @@ const UpdateStock = () => {
           fullWidth
           margin="normal"
         />
+
         <Button
           type="submit"
           variant="contained"
