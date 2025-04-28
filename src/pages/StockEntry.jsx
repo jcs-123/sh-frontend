@@ -7,7 +7,6 @@ import Reports from "./StockReports";
 import axios from "axios";
 import "./StockEntry.css";
 import DaybookReport from "./DaybookReport";
-import AuditLog from "./AuditLog";
 
 
 function StockEntry() {
@@ -62,9 +61,7 @@ function StockEntry() {
                     <li onClick={() => setActiveTab("daybook")} className={activeTab === "daybook" ? "active" : ""}>
                         📅 Daybook Report
                     </li>
-                    <li onClick={() => setActiveTab("auditLog")} className={activeTab === "auditLog" ? "active" : ""}>
-                        📝 Audit Log
-                    </li>
+                    
                 </ul>
             </nav>
 
@@ -76,7 +73,6 @@ function StockEntry() {
                 {activeTab === "damageReturn" && <DamageReturn />}
                 {activeTab === "Stockreports" && <Reports />}
                 {activeTab === "daybook" && <DaybookReport />}
-                {activeTab === "auditLog" && <AuditLog />} {/* Audit Log Component */}
             </div>
         </div>
     );

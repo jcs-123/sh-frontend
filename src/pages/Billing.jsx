@@ -7,6 +7,7 @@ import {
   Snackbar, Alert
 } from "@mui/material";
 import { Delete, Edit, Save, Logout } from "@mui/icons-material";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Billing = () => {
   const [stocks, setStocks] = useState([]);
@@ -179,8 +180,9 @@ const Billing = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    window.location.href = "/login";
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate("/login");
   };
 
   return (
