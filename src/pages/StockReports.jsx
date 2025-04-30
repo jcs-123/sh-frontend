@@ -83,33 +83,6 @@ const Reports = () => {
     saveAs(new Blob([excelBuffer]), "Count_Report.xlsx");
   };
 
-  // const handleExportPDF = () => {
-  //   const doc = new jsPDF();
-  //   const tableColumn = [
-  //     "ID",
-  //     "Date",
-  //     "Item",
-  //     "Code",
-  //     "Qty",
-  //     "Remain",
-  //     "Purchase ₹",
-  //     "Retail ₹",
-  //     "Profit ₹",
-  //   ];
-  //   const tableRows = reportData.map((r) => [
-  //     r._id.slice(0, 6) + "...",
-  //     dayjs(r.createdAt).format("YYYY-MM-DD"),
-  //     r.itemName,
-  //     r.code,
-  //     r.totalCount,
-  //     r.remainingCount,
-  //     r.purchaseAmount,
-  //     r.retailAmount,
-  //     r.profit,
-  //   ]);
-  //   doc.autoTable({ head: [tableColumn], body: tableRows });
-  //   doc.save("Count_Report.pdf");
-  // };
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4 }}>
@@ -177,29 +150,6 @@ const Reports = () => {
                       <Tooltip />
                       <Bar dataKey="totalCount" fill="#1976d2" />
                     </BarChart>
-                  </ResponsiveContainer>
-                </Paper>
-
-                <Paper sx={{ p: 2, flex: 1 }}>
-                  <Typography variant="h6">💰 Profit Distribution</Typography>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={reportData}
-                        dataKey="profit"
-                        nameKey="itemName"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        label
-                      >
-                        {reportData.map((_, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
                   </ResponsiveContainer>
                 </Paper>
               </Box>
