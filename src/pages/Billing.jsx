@@ -19,6 +19,7 @@ const Billing = () => {
   const [receipt, setReceipt] = useState(null);
   const [editingIndex, setEditingIndex] = useState(-1);
   const [editQty, setEditQty] = useState(1);
+  const [discount, setDiscount] = useState('');  // Discount state
 
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("info");
@@ -66,40 +67,40 @@ const Billing = () => {
       showAlert("warning", "Enter valid code and quantity.");
       return;
     }
-  
+
     const found = stocks.find((item) => item.code === code || item.barcode === code);
     if (!found) {
       showAlert("error", "Item not found.");
       return;
     }
-  
+
     // 👇 Ensure quantity is a number, not a string
     const enteredQuantity = Number(quantity);
     if (isNaN(enteredQuantity) || enteredQuantity < 1) {
       showAlert("warning", "Please enter a valid quantity.");
       return;
     }
-  
+
     // 👇 Calculate total quantity including already added
     const alreadyAddedQty = particulars.find(p => p.code === found.code)?.quantity || 0;
     const totalUsedQty = alreadyAddedQty + enteredQuantity;
-  
+
     const remainingQty = found.quantity - totalUsedQty;
-  
+
     if (remainingQty < found.minQuantity) {
       showAlert("warning", `⚠️ Warning: '${found.itemName}' stock will drop below minimum (${found.minQuantity})! Remaining after billing: ${remainingQty}`);
     }
-  
+
     const exists = particulars.find((p) => p.code === found.code);
     if (exists) {
       setParticulars((prev) =>
         prev.map((item) =>
           item.code === found.code
             ? {
-                ...item,
-                quantity: item.quantity + enteredQuantity,
-                amount: (item.quantity + enteredQuantity) * item.retailRate,
-              }
+              ...item,
+              quantity: item.quantity + enteredQuantity,
+              amount: (item.quantity + enteredQuantity) * item.retailRate,
+            }
             : item
         )
       );
@@ -115,12 +116,12 @@ const Billing = () => {
         },
       ]);
     }
-  
+
     setSearchCode("");
     setQuantity(1);
     inputRef.current?.focus();
   };
-  
+
 
   const handleEditItem = (index) => {
     setEditingIndex(index);
@@ -150,6 +151,7 @@ const Billing = () => {
   };
 
   const totalAmount = particulars.reduce((sum, item) => sum + item.amount, 0);
+  const discountedAmount = totalAmount - discount;  // Apply discount
   const balance = payment - totalAmount;
 
   const handleSubmitAndPrint = async () => {
@@ -160,6 +162,7 @@ const Billing = () => {
     const transformedItems = particulars.map((item) => ({
       code: item.code,
       qty: item.quantity,
+      retailRate: item.retailRate, // Assuming retailRate exists in each item
     }));
 
     try {
@@ -167,15 +170,14 @@ const Billing = () => {
         buyerName,
         items: transformedItems,
         payment,
-        totalAmount, // 👈 Add this to save total amount in DB
+        discount,  // Include discount here
       });
-
 
       setReceipt({
         ...res.data,
         items: particulars,
-        total: totalAmount,
-        balance,
+        total: res.data.totalAmount,  // Display total amount after discount
+        balance: res.data.balance,
         payment,
         buyerName,
       });
@@ -183,6 +185,7 @@ const Billing = () => {
       setBuyerName("");
       setParticulars([]);
       setPayment(0);
+      setDiscount(0);  // Reset discount after submission
       showAlert("success", "Bill submitted successfully!");
 
       setTimeout(() => window.print(), 500);
@@ -206,8 +209,8 @@ const Billing = () => {
 
   };
   return (
-    
-     <Box sx={{ maxWidth: 1200, mx: "auto", p: 4 }}>
+
+    <Box sx={{ maxWidth: 1200, mx: "auto", p: 4 }}>
       {/* Header with Logout Button on the same line */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h4" color="primary">🧾 Bookstall Billing</Typography>
@@ -319,10 +322,19 @@ const Billing = () => {
       )}
 
       {/* Payment Section */}
-      <Paper sx={{ p: 3, mb: 3 }} elevation={3}>
+      <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
         <Typography variant="h6">Payment</Typography>
         <Stack spacing={2}>
-          <Typography>Total: ₹{totalAmount.toFixed(2)}</Typography>
+
+          <TextField
+            type="number"
+            label="Enter Discount Amount"
+            value={discount}
+            onChange={(e) => setDiscount(Number(e.target.value))}
+            fullWidth
+            placeholder="Enter discount amount"
+          />
+          <Typography>Total: ₹{discountedAmount.toFixed(2)}</Typography>
           <TextField
             label="Payment Amount"
             value={payment}
@@ -342,15 +354,16 @@ const Billing = () => {
         <Button variant="outlined" onClick={handleReprint}>
           🔁 Reprint Last Bill
         </Button>
-         <Button
-        variant="outlined"
-        color="secondary"
-        onClick={handleClearForm}
-      >
-        🧹 Clear Form
-      </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={handleClearForm}
+        >
+          🧹 Clear Form
+        </Button>
       </Stack>
 
+      {/* Receipt */}
       {/* Receipt */}
       <div ref={receiptRef} className="receipt-layout">
         {receipt && (
@@ -361,6 +374,8 @@ const Billing = () => {
             <Typography><strong>Receipt #:</strong> {receipt.receiptNumber}</Typography>
             <Typography>Buyer: {receipt.buyerName}</Typography>
             <Divider sx={{ my: 1 }} />
+
+            {/* Itemized List */}
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -383,10 +398,15 @@ const Billing = () => {
                 ))}
               </TableBody>
             </Table>
+
             <Divider sx={{ my: 1 }} />
-            <Typography>Total: ₹{receipt.total.toFixed(2)}</Typography>
-            <Typography>Payment: ₹{receipt.payment}</Typography>
-            <Typography>Balance: ₹{receipt.balance.toFixed(2)}</Typography>
+
+            {/* Discount and Total Calculation */}
+            <Typography><strong>Discount:</strong> ₹{receipt.discount.toFixed(2)}</Typography>
+            <Typography><strong>Total (After Discount):</strong> ₹{receipt.total.toFixed(2)}</Typography>
+            <Typography><strong>Payment:</strong> ₹{receipt.payment}</Typography>
+            <Typography><strong>Balance:</strong> ₹{receipt.balance.toFixed(2)}</Typography>
+
             <Typography align="center">Thank you for shopping with us!</Typography>
           </Box>
         )}
@@ -403,6 +423,7 @@ const Billing = () => {
           {alertMessage}
         </Alert>
       </Snackbar>
+
     </Box>
   );
 };
