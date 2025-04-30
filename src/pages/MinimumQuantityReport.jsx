@@ -32,7 +32,7 @@ const MinimumQuantityReport = () => {
 
   const fetchStocks = async () => {
     try {
-      const res = await axios.get("https://bookstall-server-jqrx.onrender.com/api/stocks");
+      const res = await axios.get("https://shbookstall-server.onrender.com/api/stocks");
       const lowStockItems = res.data.filter(
         (item) => parseInt(item.quantity) < parseInt(item.minQuantity)
       );

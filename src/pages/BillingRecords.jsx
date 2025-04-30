@@ -29,7 +29,7 @@ const BillingRecords = () => {
                 query.append("from", dayjs(fromDate).format("YYYY-MM-DD"));
                 query.append("to", dayjs(toDate).format("YYYY-MM-DD"));
             }
-            const res = await axios.get(`https://bookstall-server-jqrx.onrender.com/api/bills?${query.toString()}`);
+            const res = await axios.get(`https://shbookstall-server.onrender.com/api/bills?${query.toString()}`);
             setBills(res.data);
         } catch (error) {
             console.error("Error fetching bills:", error.message);
@@ -38,7 +38,7 @@ const BillingRecords = () => {
 
     const handleDelete = async () => {
         try {
-            await axios.delete(`https://bookstall-server-jqrx.onrender.com/api/bills/${selectedBillId}`);
+            await axios.delete(`https://shbookstall-server.onrender.com/api/bills/${selectedBillId}`);
             setBills((prevBills) => prevBills.filter(bill => bill._id !== selectedBillId));
             setDeleteDialogOpen(false);
             setSelectedBillId(null);

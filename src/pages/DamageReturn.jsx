@@ -65,7 +65,7 @@ const DamageReturn = () => {
     const fetchItemName = async () => {
       if (formData.code.trim()) {
         try {
-          const res = await axios.get(`https://bookstall-server-jqrx.onrender.com/api/stocks/get-by-code/${formData.code}`);
+          const res = await axios.get(`https://shbookstall-server.onrender.com/api/stocks/get-by-code/${formData.code}`);
           setFormData((prev) => ({ ...prev, itemName: res.data?.itemName || "" }));
         } catch (err) {
           setFormData((prev) => ({ ...prev, itemName: "" }));
@@ -78,7 +78,7 @@ const DamageReturn = () => {
 
   const fetchDamageHistory = async () => {
     try {
-      const res = await axios.get("https://bookstall-server-jqrx.onrender.com/api/damage-return/history");
+      const res = await axios.get("https://shbookstall-server.onrender.com/api/damage-return/history");
       setDamageHistory(res.data);
     } catch (err) {
       console.error("Error fetching damage history", err);
@@ -101,7 +101,7 @@ const DamageReturn = () => {
     };
 
     try {
-      const res = await axios.post("https://bookstall-server-jqrx.onrender.com/api/damage-return/add", payload);
+      const res = await axios.post("https://shbookstall-server.onrender.com/api/damage-return/add", payload);
       alert(res.data.message);
       setFormData({ itemName: "", code: "", quantity: "", damageType: "", description: "" });
       fetchDamageHistory();
@@ -113,7 +113,7 @@ const DamageReturn = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
-        await axios.delete(`https://bookstall-server-jqrx.onrender.com/api/damage-return/delete/${id}`);
+        await axios.delete(`https://shbookstall-server.onrender.com/api/damage-return/delete/${id}`);
         fetchDamageHistory();
       } catch (err) {
         alert("Failed to delete the record.");

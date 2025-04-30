@@ -17,7 +17,7 @@ const AdminSummary = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const response = await axios.get("https://bookstall-server-jqrx.onrender.com/api/dashboard/totalpurchase");
+        const response = await axios.get("https://shbookstall-server.onrender.com/api/dashboard/totalpurchase");
         setTotalPurchase(response.data.totalPurchase);
         setTotalStockItems(response.data.totalStockItems);
         setTotalBills(response.data.totalBills);

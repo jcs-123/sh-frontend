@@ -53,7 +53,7 @@ const Reports = () => {
     if (!fromDate || !toDate) return alert("Please select both dates");
     setLoading(true);
     try {
-      const response = await axios.get("https://bookstall-server-jqrx.onrender.com/api/stocks/count-report", {
+      const response = await axios.get("https://shbookstall-server.onrender.com/api/stocks/count-report", {
         params: { from: fromDate, to: toDate },
       });
       setReportData(response.data);

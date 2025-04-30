@@ -40,7 +40,7 @@ const UpdateStock = () => {
     const fetchStocks = async () => {
       try {
         const response = await axios.get(
-          "https://bookstall-server-jqrx.onrender.com/api/stocks"
+          "https://shbookstall-server.onrender.com/api/stocks"
         );
         setAllStocks(response.data);
       } catch (err) {
@@ -112,7 +112,7 @@ const UpdateStock = () => {
         parseFloat(updatedStock.purchaseRate) * parseFloat(updatedStock.quantity);
 
       await axios.put(
-        `https://bookstall-server-jqrx.onrender.com/api/stocks/${formData._id}`,
+        `https://shbookstall-server.onrender.com/api/stocks/${formData._id}`,
         updatedStock
       );
 

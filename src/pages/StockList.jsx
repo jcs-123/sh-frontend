@@ -15,7 +15,7 @@ import {
   Button,
   TextField,
 } from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -28,7 +28,7 @@ const StockList = () => {
 
   const fetchStocks = async () => {
     try {
-      const res = await axios.get("https://bookstall-server-jqrx.onrender.com/api/stocks");
+      const res = await axios.get("https://shbookstall-server.onrender.com/api/stocks");
       setStocks(res.data);
     } catch (err) {
       console.error("Error fetching stocks:", err);
@@ -38,16 +38,6 @@ const StockList = () => {
   useEffect(() => {
     fetchStocks();
   }, []);
-
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`https://bookstall-server-jqrx.onrender.com/api/stocks/${id}`);
-      setSnack({ open: true, message: "Stock deleted successfully", severity: "success" });
-      fetchStocks();
-    } catch (err) {
-      setSnack({ open: true, message: "Error deleting stock", severity: "error" });
-    }
-  };
 
   const filteredStocks = stocks.filter(
     (stock) =>
@@ -120,9 +110,6 @@ const StockList = () => {
                   <TableCell align="center">
                     <IconButton color="primary" onClick={() => navigate(`/edit-stock/${stock._id}`)}>
                       <Edit />
-                    </IconButton>
-                    <IconButton color="error" onClick={() => handleDelete(stock._id)}>
-                      <Delete />
                     </IconButton>
                   </TableCell>
                 </TableRow>
