@@ -113,6 +113,18 @@ const AdminDashboard = () => {
             ))}
           </Menu>
 
+          {/* New Button for Minimum Quantity Report */}
+          <Tooltip title="View Minimum Quantity Report" arrow>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<LocalMallIcon />}
+              onClick={() => navigate("/minQuantity")}
+            >
+              Minimum Quantity Report
+            </Button>
+          </Tooltip>
+
           <Tooltip title="Damage Returns" arrow>
             <Button
               variant="contained"

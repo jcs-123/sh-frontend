@@ -19,7 +19,7 @@ const Billing = () => {
   const [receipt, setReceipt] = useState(null);
   const [editingIndex, setEditingIndex] = useState(-1);
   const [editQty, setEditQty] = useState(1);
-  const [discount, setDiscount] = useState('');  // Discount state
+  const [discount, setDiscount] = useState(''); // ➕ Discount State
 
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("info");
@@ -30,6 +30,7 @@ const Billing = () => {
     setSearchCode("");
     setQuantity("");
     setPayment("");
+    setDiscount(""),
     setParticulars([]);
     setReceipt(null);
     setEditingIndex(-1);
@@ -61,6 +62,7 @@ const Billing = () => {
       });
   }, []);
 
+
   const handleAddItem = (codeInput) => {
     const code = codeInput.trim();
     if (!code || quantity < 1) {
@@ -74,23 +76,25 @@ const Billing = () => {
       return;
     }
 
-    // 👇 Ensure quantity is a number, not a string
-    const enteredQuantity = Number(quantity);
-    if (isNaN(enteredQuantity) || enteredQuantity < 1) {
-      showAlert("warning", "Please enter a valid quantity.");
-      return;
-    }
-
     // 👇 Calculate total quantity including already added
     const alreadyAddedQty = particulars.find(p => p.code === found.code)?.quantity || 0;
-    const totalUsedQty = alreadyAddedQty + enteredQuantity;
+    const totalUsedQty = alreadyAddedQty + quantity;
 
+    // Calculate remaining quantity
     const remainingQty = found.quantity - totalUsedQty;
 
+    // Prevent quantity from going negative
+    if (remainingQty < 0) {
+      showAlert("error", `⚠️ Error: Not enough stock for '${found.itemName}'. Available stock is ${found.quantity}.`);
+      return; // Prevent adding item if stock is insufficient
+    }
+
+    // Warn if stock goes below minimum threshold after addition
     if (remainingQty < found.minQuantity) {
       showAlert("warning", `⚠️ Warning: '${found.itemName}' stock will drop below minimum (${found.minQuantity})! Remaining after billing: ${remainingQty}`);
     }
 
+    // Check if item already exists in the billing particulars
     const exists = particulars.find((p) => p.code === found.code);
     if (exists) {
       setParticulars((prev) =>
@@ -98,8 +102,8 @@ const Billing = () => {
           item.code === found.code
             ? {
               ...item,
-              quantity: item.quantity + enteredQuantity,
-              amount: (item.quantity + enteredQuantity) * item.retailRate,
+              quantity: item.quantity + quantity,
+              amount: (item.quantity + quantity) * item.retailRate,
             }
             : item
         )
@@ -110,17 +114,89 @@ const Billing = () => {
         {
           code: found.code,
           itemName: found.itemName,
-          quantity: enteredQuantity,
+          quantity,
           retailRate: found.retailRate,
-          amount: found.retailRate * enteredQuantity,
+          amount: found.retailRate * quantity,
         },
       ]);
     }
+
+    // Update stock quantity after successful addition, ensuring it does not go negative
+    const updatedStock = stocks.map(item =>
+      item.code === found.code
+        ? { ...item, quantity: item.quantity - quantity }  // Reduce stock quantity
+        : item
+    );
+    setStocks(updatedStock);
 
     setSearchCode("");
     setQuantity(1);
     inputRef.current?.focus();
   };
+
+
+
+
+  // const handleAddItem = (codeInput) => {
+  //   const code = codeInput.trim();
+  //   if (!code || quantity < 1) {
+  //     showAlert("warning", "Enter valid code and quantity.");
+  //     return;
+  //   }
+
+  //   const found = stocks.find((item) => item.code === code || item.barcode === code);
+  //   if (!found) {
+  //     showAlert("error", "Item not found.");
+  //     return;
+  //   }
+
+  //   // 👇 Ensure quantity is a number, not a string
+  //   const enteredQuantity = Number(quantity);
+  //   if (isNaN(enteredQuantity) || enteredQuantity < 1) {
+  //     showAlert("warning", "Please enter a valid quantity.");
+  //     return;
+  //   }
+
+  //   // 👇 Calculate total quantity including already added
+  //   const alreadyAddedQty = particulars.find(p => p.code === found.code)?.quantity || 0;
+  //   const totalUsedQty = alreadyAddedQty + enteredQuantity;
+
+  //   const remainingQty = found.quantity - totalUsedQty;
+
+  //   if (remainingQty < found.minQuantity) {
+  //     showAlert("warning", `⚠️ Warning: '${found.itemName}' stock will drop below minimum (${found.minQuantity})! Remaining after billing: ${remainingQty}`);
+  //   }
+
+  //   const exists = particulars.find((p) => p.code === found.code);
+  //   if (exists) {
+  //     setParticulars((prev) =>
+  //       prev.map((item) =>
+  //         item.code === found.code
+  //           ? {
+  //               ...item,
+  //               quantity: item.quantity + enteredQuantity,
+  //               amount: (item.quantity + enteredQuantity) * item.retailRate,
+  //             }
+  //           : item
+  //       )
+  //     );
+  //   } else {
+  //     setParticulars((prev) => [
+  //       ...prev,
+  //       {
+  //         code: found.code,
+  //         itemName: found.itemName,
+  //         quantity: enteredQuantity,
+  //         retailRate: found.retailRate,
+  //         amount: found.retailRate * enteredQuantity,
+  //       },
+  //     ]);
+  //   }
+
+  //   setSearchCode("");
+  //   setQuantity(1);
+  //   inputRef.current?.focus();
+  // };
 
 
   const handleEditItem = (index) => {
@@ -151,8 +227,9 @@ const Billing = () => {
   };
 
   const totalAmount = particulars.reduce((sum, item) => sum + item.amount, 0);
-  const discountedAmount = totalAmount - discount;  // Apply discount
-  const balance = payment - totalAmount;
+  const grandTotal = totalAmount - discount; // 👈 Total after discount
+  const balance = payment - grandTotal;
+
 
   const handleSubmitAndPrint = async () => {
     if (!buyerName.trim() || particulars.length === 0) {
@@ -162,7 +239,6 @@ const Billing = () => {
     const transformedItems = particulars.map((item) => ({
       code: item.code,
       qty: item.quantity,
-      retailRate: item.retailRate, // Assuming retailRate exists in each item
     }));
 
     try {
@@ -170,14 +246,18 @@ const Billing = () => {
         buyerName,
         items: transformedItems,
         payment,
-        discount,  // Include discount here
+        totalAmount, // 👈 Add this to save total amount in DB
+        grandTotal,
+        discount // 👈 Save discounted total
       });
+
 
       setReceipt({
         ...res.data,
         items: particulars,
-        total: res.data.totalAmount,  // Display total amount after discount
-        balance: res.data.balance,
+        total: totalAmount,
+        discount,       // ✅ this line ensures discount is stored
+        balance,
         payment,
         buyerName,
       });
@@ -185,7 +265,6 @@ const Billing = () => {
       setBuyerName("");
       setParticulars([]);
       setPayment(0);
-      setDiscount(0);  // Reset discount after submission
       showAlert("success", "Bill submitted successfully!");
 
       setTimeout(() => window.print(), 500);
@@ -322,19 +401,20 @@ const Billing = () => {
       )}
 
       {/* Payment Section */}
-      <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
+      <Paper sx={{ p: 3, mb: 3 }} elevation={3}>
         <Typography variant="h6">Payment</Typography>
         <Stack spacing={2}>
-
+          <Typography>Total: ₹{totalAmount.toFixed(2)}</Typography>
           <TextField
+            label="Discount Amount"
             type="number"
-            label="Enter Discount Amount"
             value={discount}
             onChange={(e) => setDiscount(Number(e.target.value))}
             fullWidth
-            placeholder="Enter discount amount"
+            placeholder="Enter discount"
           />
-          <Typography>Total: ₹{discountedAmount.toFixed(2)}</Typography>
+          <Typography><strong>Grand Total: ₹{grandTotal.toFixed(2)}</strong></Typography>
+
           <TextField
             label="Payment Amount"
             value={payment}
@@ -364,51 +444,147 @@ const Billing = () => {
       </Stack>
 
       {/* Receipt */}
-      {/* Receipt */}
       <div ref={receiptRef} className="receipt-layout">
         {receipt && (
-          <Box sx={{ p: 2 }}>
-            <Typography variant="h5" align="center">📚 Bookstall Receipt</Typography>
-            <Divider sx={{ my: 1 }} />
-            <Typography>Date: {new Date(receipt.date || Date.now()).toLocaleString()}</Typography>
-            <Typography><strong>Receipt #:</strong> {receipt.receiptNumber}</Typography>
-            <Typography>Buyer: {receipt.buyerName}</Typography>
-            <Divider sx={{ my: 1 }} />
-
-            {/* Itemized List */}
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell><strong>Code</strong></TableCell>
-                  <TableCell><strong>Item</strong></TableCell>
-                  <TableCell><strong>Qty</strong></TableCell>
-                  <TableCell><strong>Rate</strong></TableCell>
-                  <TableCell><strong>Amount</strong></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {receipt.items.map((item, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{item.code}</TableCell>
-                    <TableCell>{item.itemName}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>₹{item.retailRate}</TableCell>
-                    <TableCell>₹{item.amount.toFixed(2)}</TableCell>
+              <Box 
+              sx={{ 
+                p: 4, 
+                maxWidth: 600, 
+                margin: 'auto', 
+                border: '1px solid #e0e0e0', 
+                borderRadius: '8px', 
+                boxShadow: 3, 
+                backgroundColor: '#fff', 
+                color: '#333'
+              }}
+            >
+              {/* Shop Header */}
+              <Typography 
+                variant="h5" 
+                align="center" 
+                sx={{ 
+                  fontWeight: 'bold', 
+                  fontFamily: "'Lora', serif", 
+                  color: '#2C3E50', 
+                  marginBottom: '16px' 
+                }}
+              >
+                📜 Shop Receipt
+              </Typography>
+        
+              {/* Divider */}
+              <Divider sx={{ my: 2, backgroundColor: '#2C3E50' }} />
+        
+              {/* Receipt Info */}
+              <Typography sx={{ fontWeight: 600 }}>Date: {new Date(receipt.date || Date.now()).toLocaleString()}</Typography>
+              <Typography sx={{ fontWeight: 600 }}><strong>Receipt #:</strong> {receipt.receiptNumber}</Typography>
+              <Typography sx={{ fontWeight: 600 }}><strong>Buyer:</strong> {receipt.buyerName}</Typography>
+        
+              {/* Divider */}
+              <Divider sx={{ my: 2, backgroundColor: '#2C3E50' }} />
+        
+              {/* Item Details Table */}
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Code</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Item</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Qty</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Rate</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Amount</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {receipt.items.map((item, i) => (
+                    <TableRow key={i}>
+                      <TableCell>{item.code}</TableCell>
+                      <TableCell>{item.itemName}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>₹{item.retailRate}</TableCell>
+                      <TableCell>₹{item.amount.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+        
+              {/* Divider */}
+              <Divider sx={{ my: 2, backgroundColor: '#2C3E50' }} />
+        
+              {/* Totals Section */}
+              <Grid container spacing={2} sx={{ color: '#2C3E50' }}>
+                <Grid item xs={6}>
+                  <Typography sx={{ fontWeight: 600 }}>Total: ₹{receipt.total.toFixed(2)}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography sx={{ fontWeight: 600 }}>Discount: ₹{receipt.discount ? receipt.discount.toFixed(2) : "0.00"}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography sx={{ fontWeight: 600 }}>Final Total: ₹{(receipt.total - (receipt.discount || 0)).toFixed(2)}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography sx={{ fontWeight: 600 }}>Payment: ₹{receipt.payment}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography sx={{ fontWeight: 600 }}>Balance: ₹{receipt.balance.toFixed(2)}</Typography>
+                </Grid>
+              </Grid>
+        
+              {/* Divider */}
+              <Divider sx={{ my: 2, backgroundColor: '#2C3E50' }} />
+        
+              {/* Footer Section */}
+              <Typography 
+                align="center" 
+                sx={{ 
+                  fontWeight: 'bold', 
+                  fontSize: '1.2rem', 
+                  color: '#2C3E50', 
+                  fontFamily: "'Lora', serif", 
+                  marginTop: '16px' 
+                }}
+              >
+                Thank you for shopping with us! 🎉
+              </Typography>
+            </Box>
 
-            <Divider sx={{ my: 1 }} />
-
-            {/* Discount and Total Calculation */}
-            <Typography><strong>Discount:</strong> ₹{receipt.discount.toFixed(2)}</Typography>
-            <Typography><strong>Total (After Discount):</strong> ₹{receipt.total.toFixed(2)}</Typography>
-            <Typography><strong>Payment:</strong> ₹{receipt.payment}</Typography>
-            <Typography><strong>Balance:</strong> ₹{receipt.balance.toFixed(2)}</Typography>
-
-            <Typography align="center">Thank you for shopping with us!</Typography>
-          </Box>
+            
+          // <Box sx={{ p: 2 }}>
+          //   <Typography variant="h5" align="center">📚 Bookstall Receipt</Typography>
+          //   <Divider sx={{ my: 1 }} />
+          //   <Typography>Date: {new Date(receipt.date || Date.now()).toLocaleString()}</Typography>
+          //   <Typography><strong>Receipt #:</strong> {receipt.receiptNumber}</Typography>
+          //   <Typography>Buyer: {receipt.buyerName}</Typography>
+          //   <Divider sx={{ my: 1 }} />
+          //   <Table size="small">
+          //     <TableHead>
+          //       <TableRow>
+          //         <TableCell><strong>Code</strong></TableCell>
+          //         <TableCell><strong>Item</strong></TableCell>
+          //         <TableCell><strong>Qty</strong></TableCell>
+          //         <TableCell><strong>Rate</strong></TableCell>
+          //         <TableCell><strong>Amount</strong></TableCell>
+          //       </TableRow>
+          //     </TableHead>
+          //     <TableBody>
+          //       {receipt.items.map((item, i) => (
+          //         <TableRow key={i}>
+          //           <TableCell>{item.code}</TableCell>
+          //           <TableCell>{item.itemName}</TableCell>
+          //           <TableCell>{item.quantity}</TableCell>
+          //           <TableCell>₹{item.retailRate}</TableCell>
+          //           <TableCell>₹{item.amount.toFixed(2)}</TableCell>
+          //         </TableRow>
+          //       ))}
+          //     </TableBody>
+          //   </Table>
+          //   <Divider sx={{ my: 1 }} />
+          //   <Typography>Total: ₹{receipt.total.toFixed(2)}</Typography>
+          //   <Typography>Discount: ₹{receipt.discount ? receipt.discount.toFixed(2) : "0.00"}</Typography>
+          //   <Typography>Total: ₹{(receipt.total - (receipt.discount || 0)).toFixed(2)}</Typography>
+          //   <Typography>Payment: ₹{receipt.payment}</Typography>
+          //   <Typography>Balance: ₹{receipt.balance.toFixed(2)}</Typography>
+          //   <Typography align="center">Thank you for shopping with us!</Typography>
+          // </Box>
         )}
       </div>
 
@@ -423,7 +599,6 @@ const Billing = () => {
           {alertMessage}
         </Alert>
       </Snackbar>
-
     </Box>
   );
 };

@@ -103,8 +103,10 @@ const UpdateStock = () => {
 
       if (existingStock) {
         // Update the quantity by adding the new quantity
+        updatedStock.enteredQuantity = parseFloat(formData.quantityToAdd);
         updatedStock.quantity =
           parseFloat(existingStock.quantity) + parseFloat(formData.quantityToAdd);
+        
       }
 
       // Calculate new total value: purchaseRate * updated quantity

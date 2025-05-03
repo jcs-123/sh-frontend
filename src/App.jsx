@@ -12,7 +12,8 @@ import DaybookReport from "./pages/DaybookReport";
 import BillingRecords from "./pages/BillingRecords";
 import AdminSummary from "./pages/AdminSummary";
 import UpdateStock from "./pages/UpdateStock";
-
+import AuditLog from "./pages/AuditLog";
+import MinimumQuantityReport from "./pages/MinimumQuantityReport";
 
 const PrivateRoute = ({ role, children }) => {
     const userRole = localStorage.getItem("role");
@@ -32,17 +33,18 @@ function App() {
                 <Route path="/add-stock" element={<AddStock />} />
                 <Route path="/edit-stock" element={<EditStock />} />
                 <Route path="/damage-return" element={<DamageReturn />} />
+                <Route path="/minQuantity" element={<MinimumQuantityReport />} />
                 <Route path="/stock-report" element={<Report />} />
                 <Route path="/edit-stock/:id" element={<EditStock />} />
                 <Route path="/update-stock" element={<UpdateStock />} />
                 <Route path="/daybook-report" element={<DaybookReport />} />
                 <Route path="/billing-records" element={<BillingRecords />} />
                 <Route path="/admin-summary" element={<AdminSummary />} />
+                <Route path="/audit-log" element={<AuditLog />} />
+
 
               
 
-        
-                
         
             </Routes>
         </Router>
