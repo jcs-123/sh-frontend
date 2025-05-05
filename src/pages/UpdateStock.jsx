@@ -33,7 +33,6 @@ const UpdateStock = () => {
   const [snackMessage, setSnackMessage] = useState("");
   const [snackSeverity, setSnackSeverity] = useState("success");
   const [snackOpen, setSnackOpen] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,7 +92,7 @@ const UpdateStock = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const { __v, ...updatedStock } = formData;
+    const updatedStock = { ...formData };
     updatedStock.editedBy = "Admin";
 
     try {
@@ -102,16 +101,13 @@ const UpdateStock = () => {
       );
 
       if (existingStock) {
-        // Update the quantity by adding the new quantity
+        const newQuantity =
+          parseFloat(existingStock.quantity || 0) + parseFloat(formData.quantityToAdd || 0);
         updatedStock.enteredQuantity = parseFloat(formData.quantityToAdd);
-        updatedStock.quantity =
-          parseFloat(existingStock.quantity) + parseFloat(formData.quantityToAdd);
-        
+        updatedStock.quantity = newQuantity;
+        updatedStock.totalValue =
+          parseFloat(formData.purchaseRate) * newQuantity;
       }
-
-      // Calculate new total value: purchaseRate * updated quantity
-      updatedStock.totalValue =
-        parseFloat(updatedStock.purchaseRate) * parseFloat(updatedStock.quantity);
 
       await axios.put(
         `https://shbookstall-server.onrender.com/api/stocks/${formData._id}`,
@@ -212,7 +208,6 @@ const UpdateStock = () => {
           margin="normal"
         />
 
-        {/* Existing Quantity */}
         <TextField
           label="Existing Quantity"
           name="existingQuantity"
@@ -224,7 +219,6 @@ const UpdateStock = () => {
           }}
         />
 
-        {/* Quantity To Add */}
         <TextField
           label="Quantity To Add"
           name="quantityToAdd"
