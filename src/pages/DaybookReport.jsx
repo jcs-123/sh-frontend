@@ -17,11 +17,11 @@ import {
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-
 const DaybookReport = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [entries, setEntries] = useState([]);
+  const [totals, setTotals] = useState({ receipt: 0, payment: 0 });
   const [loading, setLoading] = useState(false);
 
   const fetchEntries = async () => {
@@ -32,16 +32,18 @@ const DaybookReport = () => {
       const res = await axios.get(
         `https://shbookstall-server.onrender.com/api/daybook?from=${fromDate}&to=${toDate}`
       );
-      console.log(res);
-      
-      if (Array.isArray(res.data)) {
-        setEntries(res.data);
+
+      if (res.data.entries && Array.isArray(res.data.entries)) {
+        setEntries(res.data.entries);
+        setTotals(res.data.totals || { receipt: 0, payment: 0 });
       } else {
         setEntries([]);
+        setTotals({ receipt: 0, payment: 0 });
       }
     } catch (err) {
       console.error("Fetch Error:", err);
       setEntries([]);
+      setTotals({ receipt: 0, payment: 0 });
     }
     setLoading(false);
   };
@@ -54,6 +56,15 @@ const DaybookReport = () => {
       Receipt: entry.receipt,
       Payment: entry.payment,
     }));
+
+    // Add totals as a separate row
+    data.push({
+      Date: "TOTAL",
+      Type: "",
+      Particulars: "",
+      Receipt: totals.receipt,
+      Payment: totals.payment,
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
@@ -69,15 +80,11 @@ const DaybookReport = () => {
     saveAs(file, "Daybook_Report.xlsx");
   };
 
-  const totalReceipt = entries.reduce((acc, cur) => acc + (cur.receipt || 0), 0);
-  const totalPayment = entries.reduce((acc, cur) => acc + (cur.payment || 0), 0);
-
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
         📘 Daybook Report
       </Typography>
-      
 
       <Paper sx={{ p: 2, mb: 4 }}>
         <Grid container spacing={2} alignItems="center">
@@ -153,10 +160,10 @@ const DaybookReport = () => {
                   <b>Total:</b>
                 </TableCell>
                 <TableCell>
-                  <b>₹{totalReceipt}</b>
+                  <b>₹{totals.receipt}</b>
                 </TableCell>
                 <TableCell>
-                  <b>₹{totalPayment}</b>
+                  <b>₹{totals.payment}</b>
                 </TableCell>
               </TableRow>
             </TableBody>

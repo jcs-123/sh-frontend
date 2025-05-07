@@ -445,107 +445,47 @@ const Billing = () => {
 
       {/* Receipt */}
       <div ref={receiptRef} className="receipt-layout">
-        {receipt && (
-              <Box 
-              sx={{ 
-                p: 4, 
-                maxWidth: 600, 
-                margin: 'auto', 
-                border: '1px solid #e0e0e0', 
-                borderRadius: '8px', 
-                boxShadow: 3, 
-                backgroundColor: '#fff', 
-                color: '#333'
-              }}
-            >
-              {/* Shop Header */}
-              <Typography 
-                variant="h5" 
-                align="center" 
-                sx={{ 
-                  fontWeight: 'bold', 
-                  fontFamily: "'Lora', serif", 
-                  color: '#2C3E50', 
-                  marginBottom: '16px' 
-                }}
-              >
-                📜 Shop Receipt
-              </Typography>
-        
-              {/* Divider */}
-              <Divider sx={{ my: 2, backgroundColor: '#2C3E50' }} />
-        
-              {/* Receipt Info */}
-              <Typography sx={{ fontWeight: 600 }}>Date: {new Date(receipt.date || Date.now()).toLocaleString()}</Typography>
-              <Typography sx={{ fontWeight: 600 }}><strong>Receipt #:</strong> {receipt.receiptNumber}</Typography>
-              <Typography sx={{ fontWeight: 600 }}><strong>Buyer:</strong> {receipt.buyerName}</Typography>
-        
-              {/* Divider */}
-              <Divider sx={{ my: 2, backgroundColor: '#2C3E50' }} />
-        
-              {/* Item Details Table */}
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Code</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Item</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Qty</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Rate</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#2C3E50', color: '#fff' }}>Amount</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {receipt.items.map((item, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{item.code}</TableCell>
-                      <TableCell>{item.itemName}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell>₹{item.retailRate}</TableCell>
-                      <TableCell>₹{item.amount.toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-        
-              {/* Divider */}
-              <Divider sx={{ my: 2, backgroundColor: '#2C3E50' }} />
-        
-              {/* Totals Section */}
-              <Grid container spacing={2} sx={{ color: '#2C3E50' }}>
-                <Grid item xs={6}>
-                  <Typography sx={{ fontWeight: 600 }}>Total: ₹{receipt.total.toFixed(2)}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography sx={{ fontWeight: 600 }}>Discount: ₹{receipt.discount ? receipt.discount.toFixed(2) : "0.00"}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography sx={{ fontWeight: 600 }}>Final Total: ₹{(receipt.total - (receipt.discount || 0)).toFixed(2)}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography sx={{ fontWeight: 600 }}>Payment: ₹{receipt.payment}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography sx={{ fontWeight: 600 }}>Balance: ₹{receipt.balance.toFixed(2)}</Typography>
-                </Grid>
-              </Grid>
-        
-              {/* Divider */}
-              <Divider sx={{ my: 2, backgroundColor: '#2C3E50' }} />
-        
-              {/* Footer Section */}
-              <Typography 
-                align="center" 
-                sx={{ 
-                  fontWeight: 'bold', 
-                  fontSize: '1.2rem', 
-                  color: '#2C3E50', 
-                  fontFamily: "'Lora', serif", 
-                  marginTop: '16px' 
-                }}
-              >
-                Thank you for shopping with us! 🎉
-              </Typography>
-            </Box>
+      {receipt && (
+    <Box sx={{ p: 2, maxWidth: 600, margin: 'auto', backgroundColor: '#fff', color: '#333', border: '1px solid #ccc', borderRadius: 2 }}>
+      <Typography variant="h5" align="center">📚 Bookstall Receipt</Typography>
+      <Divider sx={{ my: 1 }} />
+      <Typography>Date: {new Date(receipt.date || Date.now()).toLocaleString()}</Typography>
+      <Typography><strong>Receipt #:</strong> {receipt.receiptNumber}</Typography>
+      <Typography><strong>Buyer:</strong> {receipt.buyerName}</Typography>
+      <Divider sx={{ my: 1 }} />
+
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell><strong>Code</strong></TableCell>
+            <TableCell><strong>Item</strong></TableCell>
+            <TableCell><strong>Qty</strong></TableCell>
+            <TableCell><strong>Rate</strong></TableCell>
+            <TableCell><strong>Amount</strong></TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {receipt.items.map((item, i) => (
+            <TableRow key={i}>
+              <TableCell>{item.code}</TableCell>
+              <TableCell>{item.itemName}</TableCell>
+              <TableCell>{item.quantity}</TableCell>
+              <TableCell>₹{item.retailRate}</TableCell>
+              <TableCell>₹{item.amount.toFixed(2)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Divider sx={{ my: 1 }} />
+      <Typography>Total: ₹{receipt.total.toFixed(2)}</Typography>
+      <Typography>Discount: ₹{receipt.discount ? receipt.discount.toFixed(2) : "0.00"}</Typography>
+      <Typography>Final Total: ₹{(receipt.total - (receipt.discount || 0)).toFixed(2)}</Typography>
+      <Typography>Payment: ₹{receipt.payment}</Typography>
+      <Typography>Balance: ₹{receipt.balance.toFixed(2)}</Typography>
+      <Divider sx={{ my: 1 }} />
+      <Typography align="center">Thank you for shopping with us!</Typography>
+    </Box>
 
             
           // <Box sx={{ p: 2 }}>
